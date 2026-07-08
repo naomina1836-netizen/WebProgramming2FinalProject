@@ -1,4 +1,3 @@
-# WebProgramming2FinalProject
 # Nayo Jobs
 
 ## Job Recruitment & Career Management Platform
@@ -7,7 +6,7 @@
 
 ## Description
 
-**Nayo Jobs** is a full-stack job recruitment platform that connects employers with job seekers in Ethiopia. The platform provides a professional, elegant interface designed to make job searching and hiring a premium experience.
+**Nayo Jobs** is a full-stack job recruitment platform that connects employers with job seekers in Ethiopia. The platform provides a professional interface designed to make job searching and hiring a premium experience.
 
 Employers can create company profiles, post job vacancies, and manage applicants. Job seekers can search for jobs, upload resumes, apply for positions, and monitor their applications. Administrators oversee the entire platform by managing users, companies, and job listings.
 
@@ -116,6 +115,7 @@ Before you begin, ensure you have the following installed:
 - **Git** (for cloning)
 
 ### Step 1: Clone the Repository
+https://github.com/naomina1836-netizen/WebProgramming2FinalProject
 
 ### Step 2: Backend Setup
 
@@ -213,26 +213,53 @@ Stores all user accounts with role-based access.
 | name | VARCHAR(255) | Full name |
 | email | VARCHAR(255) | Email address (unique) |
 | password | VARCHAR(255) | Hashed password |
-| phone | VARCHAR(50) | Phone number (optional) |
+| role | ENUM | job_seeker, employer, admin |
+| phone | VARCHAR(20) | Phone number |
 | location | VARCHAR(255) | User location |
 | bio | TEXT | User biography |
 | skills | TEXT | Skills (comma-separated) |
-| role | ENUM | job_seeker, employer, admin |
 | resume_url | VARCHAR(255) | Resume file path |
 | created_at | TIMESTAMP | Account creation date |
 | updated_at | TIMESTAMP | Last update date |
 
-#### Companies Table
-Manages employer company profiles.
+#### Profiles Table
+Extended job seeker profiles with detailed information.
 
 | Column | Type | Description |
 |--------|------|-------------|
-| id | INT (PK) | Company ID (auto-increment) |
-| owner_id | INT (FK) | References users.id |
+| id | INT (PK) | Profile ID (auto-increment) |
+| user_id | INT (FK) | References users.id |
+| headline | VARCHAR(255) | Professional headline |
+| bio | TEXT | Detailed biography |
+| skills | TEXT | Detailed skills |
+| experience | TEXT | Work experience |
+| education | TEXT | Education history |
+| portfolio_url | VARCHAR(500) | Portfolio website |
+| linkedin_url | VARCHAR(500) | LinkedIn profile |
+| github_url | VARCHAR(500) | GitHub profile |
+| phone | VARCHAR(20) | Contact phone |
+| location | VARCHAR(255) | Location |
+| date_of_birth | DATE | Date of birth |
+| gender | ENUM | male, female, other, prefer_not_to_say |
+| created_at | TIMESTAMP | Creation date |
+| updated_at | TIMESTAMP | Last update date |
+
+#### Company Profiles Table
+Enhanced employer company profiles.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT (PK) | Company profile ID |
+| user_id | INT (FK) | References users.id |
 | company_name | VARCHAR(255) | Company name |
-| description | TEXT | Company description |
-| location | VARCHAR(255) | Company location |
-| website | VARCHAR(255) | Company website |
+| company_description | TEXT | Company description |
+| company_website | VARCHAR(500) | Company website |
+| company_logo | VARCHAR(500) | Logo URL/path |
+| company_size | ENUM | 1-10, 11-50, 51-200, 201-500, 501-1000, 1000+ |
+| industry | VARCHAR(100) | Industry type |
+| founded_year | YEAR | Year founded |
+| headquarters | VARCHAR(255) | HQ location |
+| phone | VARCHAR(20) | Contact phone |
 | created_at | TIMESTAMP | Creation date |
 | updated_at | TIMESTAMP | Last update date |
 
@@ -242,12 +269,18 @@ Stores job postings from employers.
 | Column | Type | Description |
 |--------|------|-------------|
 | id | INT (PK) | Job ID (auto-increment) |
-| company_id | INT (FK) | References companies.id |
+| employer_id | INT (FK) | References users.id |
 | title | VARCHAR(255) | Job title |
 | description | TEXT | Job description |
+| company | VARCHAR(255) | Company name |
 | location | VARCHAR(255) | Job location |
-| salary | VARCHAR(255) | Salary information |
+| salary | VARCHAR(100) | Salary information |
 | job_type | ENUM | full-time, part-time, contract, internship, remote |
+| category | VARCHAR(100) | Job category |
+| experience_level | VARCHAR(50) | Required experience |
+| requirements | TEXT | Job requirements |
+| responsibilities | TEXT | Job responsibilities |
+| status | ENUM | active, closed, draft |
 | deadline | DATE | Application deadline |
 | created_at | TIMESTAMP | Creation date |
 | updated_at | TIMESTAMP | Last update date |
@@ -257,14 +290,95 @@ Tracks job applications from job seekers.
 
 | Column | Type | Description |
 |--------|------|-------------|
-| id | INT (PK) | Application ID (auto-increment) |
+| id | INT (PK) | Application ID |
 | job_id | INT (FK) | References jobs.id |
-| user_id | INT (FK) | References users.id |
-| status | ENUM | pending, reviewed, accepted, rejected |
-| file_path | VARCHAR(255) | Resume file path |
+| applicant_id | INT (FK) | References users.id |
+| cover_letter | TEXT | Cover letter |
+| resume_url | VARCHAR(500) | Resume file path |
+| status | ENUM | pending, reviewed, shortlisted, interviewed, offered, rejected, withdrawn |
 | applied_at | TIMESTAMP | Application date |
-| created_at | TIMESTAMP | Creation date |
 | updated_at | TIMESTAMP | Last update date |
+| notes | TEXT | Internal notes |
+
+#### Saved Jobs Table
+Allows users to bookmark jobs for later.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT (PK) | Saved job ID |
+| user_id | INT (FK) | References users.id |
+| job_id | INT (FK) | References jobs.id |
+| saved_at | TIMESTAMP | Save date |
+| notes | TEXT | Personal notes |
+
+#### Messages Table
+Direct messaging between users.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT (PK) | Message ID |
+| sender_id | INT (FK) | References users.id |
+| receiver_id | INT (FK) | References users.id |
+| job_id | INT (FK) | References jobs.id (optional) |
+| subject | VARCHAR(255) | Message subject |
+| message | TEXT | Message content |
+| is_read | BOOLEAN | Read status |
+| read_at | TIMESTAMP | Read timestamp |
+| created_at | TIMESTAMP | Creation date |
+
+#### Notifications Table
+In-app notification system.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT (PK) | Notification ID |
+| user_id | INT (FK) | References users.id |
+| type | ENUM | application, interview, offer, message, system |
+| title | VARCHAR(255) | Notification title |
+| message | TEXT | Notification message |
+| link | VARCHAR(500) | Related link |
+| is_read | BOOLEAN | Read status |
+| read_at | TIMESTAMP | Read timestamp |
+| created_at | TIMESTAMP | Creation date |
+
+### Views
+
+| View Name | Description |
+|-----------|-------------|
+| v_job_details | Job details with employer info and application counts |
+| v_application_details | Full application details with user and job info |
+| v_employer_dashboard | Employer dashboard statistics |
+
+### Stored Procedures
+
+| Procedure | Description |
+|-----------|-------------|
+| sp_get_employer_jobs | Get all jobs for an employer with application counts |
+| sp_get_job_applications | Get all applications for a specific job |
+| sp_get_employer_stats | Get employer statistics dashboard |
+| sp_get_applicant_applications | Get all applications for a job seeker |
+
+### Triggers
+
+| Trigger | Description |
+|---------|-------------|
+| trg_create_profile_on_signup | Automatically creates profile/company profile on user signup |
+| trg_check_company_profile | Prevents duplicate company profiles |
+| trg_check_duplicate_application | Prevents duplicate job applications |
+| trg_application_notification | Creates notification when a new application is submitted |
+
+### Indexes
+
+| Table | Indexes |
+|-------|---------|
+| users | email, role |
+| profiles | user_id |
+| company_profiles | user_id, company_name |
+| jobs | employer_id, status, job_type, category, deadline, created_at |
+| applications | job_id, applicant_id, status, applied_at |
+| saved_jobs | user_id, job_id |
+| messages | sender_id, receiver_id, job_id, created_at, is_read |
+| notifications | user_id, is_read, created_at, type |
 
 ---
 
@@ -402,4 +516,5 @@ nayo-jobs/
 
 ## Contributors
 
-- **Naomi Zenebe(032/BSC-B6/2023) Section B** 
+- **Naomi Zenebe(032/BSC-B6/2023) Section B**
+```
